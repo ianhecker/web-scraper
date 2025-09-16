@@ -1,18 +1,15 @@
 package job
 
 import (
-	"crypto/sha1"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"net/url"
 	"strconv"
-	"strings"
 	"time"
 )
 
 type Job struct {
-	ID       string
+	ID       ID
 	Title    string
 	Company  string
 	Salary   string
@@ -48,19 +45,9 @@ func MakeJob(title, company, salary, dateStr, location string, isRemote bool, ur
 	return job, nil
 }
 
-func MakeID(title, company string, date time.Time, url url.URL) string {
-	seed := title +
-		"|" + company +
-		"|" + date.Format("02-01-2006") +
-		"|" + url.String()
-	base := strings.ToLower(seed)
-	sum := sha1.Sum([]byte(base))
-	return hex.EncodeToString(sum[:])[:7]
-}
-
 func (j Job) MarshalCSV() []string {
 	return []string{
-		j.ID,
+		j.ID.String(),
 		j.Title,
 		j.Company,
 		j.Salary,
@@ -76,11 +63,16 @@ func (j *Job) UnmarshalCSV(record []string) error {
 		return fmt.Errorf("invalid csv record length: %s", len(record))
 	}
 
-	j.ID = record[0]
 	j.Title = record[1]
 	j.Company = record[2]
 	j.Salary = record[3]
 	j.Location = record[5]
+
+	ID, err := MakeIDFromString(record[0])
+	if err != nil {
+		return fmt.Errorf("error creating ID: %w", err)
+	}
+	j.ID = ID
 
 	date, err := time.Parse("02-01-2006", record[4])
 	if err != nil {
@@ -114,7 +106,7 @@ func (j Job) MarshalJSON() ([]byte, error) {
 		IsRemote bool
 		URL      string
 	}{
-		ID:       j.ID,
+		ID:       j.ID.String(),
 		Title:    j.Title,
 		Company:  j.Company,
 		Salary:   j.Salary,
