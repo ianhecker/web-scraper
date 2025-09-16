@@ -3,13 +3,14 @@ package scrape
 import (
 	"fmt"
 	"io"
+	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/ianhecker/web-scraper/job"
 )
 
-func FindJobs(reader io.Reader) ([]job.Post, error) {
-	posts := []job.Post{}
+func FindRawJobs(reader io.Reader) ([]job.Raw, error) {
+	rawJobs := []job.Raw{}
 
 	doc, err := goquery.NewDocumentFromReader(reader)
 	if err != nil {
@@ -29,17 +30,35 @@ func FindJobs(reader io.Reader) ([]job.Post, error) {
 			}
 		})
 
-		locations := []string{}
+		var locations []string
+		isRemote := false
 		s.Find("ul.job-info-list li").Each(func(_ int, li *goquery.Selection) {
 			if li.Find(".fe-map-pin").Length() > 0 {
-				locations = append(locations, li.Text())
+
+				txt := strings.TrimSpace(li.Text())
+				if strings.EqualFold(txt, "Remote") {
+					isRemote = true
+				} else {
+					locations = append(locations, txt)
+				}
 			}
 		})
+		location := ""
+		if len(locations) > 0 {
+			location = strings.Join(locations, ",")
+		}
 
 		url, _ := s.Find(".job-bottom a.theme-btn").Attr("href")
 
-		post := job.MakePost(title, company, salary, date, url, locations)
-		posts = append(posts, post)
+		title = strings.TrimSpace(title)
+		company = strings.TrimSpace(company)
+		salary = strings.TrimSpace(salary)
+		date = strings.TrimSpace(date)
+		location = strings.TrimSpace(location)
+		url = strings.TrimSpace(url)
+
+		rawJob := job.MakeRaw(title, company, salary, date, location, isRemote, url)
+		rawJobs = append(rawJobs, rawJob)
 	})
-	return posts, nil
+	return rawJobs, nil
 }
