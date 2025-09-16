@@ -2,17 +2,23 @@ package main
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 
+	"github.com/ianhecker/web-scraper/csv"
 	"github.com/ianhecker/web-scraper/job"
 	"github.com/ianhecker/web-scraper/scrape"
 )
 
-func main() {
-	url := "https://gojobs.run"
+const FILENAME = "jobs.csv"
+const URL = "https://gojobs.run"
 
-	body, _, err := scrape.Get(url)
+func main() {
+	existingJobs, err := csv.ReadFile(FILENAME)
+	if err != nil {
+		panic(err)
+	}
+
+	body, _, err := scrape.Get(URL)
 	if err != nil {
 		panic(err)
 	}
@@ -23,14 +29,29 @@ func main() {
 		panic(err)
 	}
 
-	jobs, err := job.MakeJobsFromRawJobs(rawJobs)
+	newJobs, err := job.MakeJobsFromRawJobs(rawJobs)
 	if err != nil {
 		panic(err)
 	}
 
-	bytes, err := json.MarshalIndent(jobs, "", " ")
-	if err != nil {
-		panic(err)
+	m := make(map[string]job.Job, len(existingJobs))
+	for _, job := range existingJobs {
+		m[job.ID] = job
 	}
-	fmt.Println(string(bytes))
+
+	addedJobs := []job.Job{}
+	for _, job := range newJobs {
+		_, exists := m[job.ID]
+		if !exists {
+			existingJobs = append(existingJobs, job)
+			addedJobs = append(addedJobs, job)
+		}
+	}
+
+	if len(addedJobs) > 0 {
+		fmt.Printf("added jobs: %d\n", len(addedJobs))
+		for _, job := range addedJobs {
+			fmt.Printf("Title: %s\nCompany: %s\n", job.Title, job.Company)
+		}
+	}
 }
