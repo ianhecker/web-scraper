@@ -2,8 +2,10 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 
+	"github.com/ianhecker/web-scraper/job"
 	"github.com/ianhecker/web-scraper/scrape"
 )
 
@@ -16,12 +18,19 @@ func main() {
 	}
 
 	reader := bytes.NewReader(body)
-	posts, err := scrape.FindJobs(reader)
+	rawJobs, err := scrape.FindRawJobs(reader)
 	if err != nil {
 		panic(err)
 	}
 
-	for _, post := range posts {
-		fmt.Printf("post: %+v\n", post)
+	jobs, err := job.MakeJobsFromRawJobs(rawJobs)
+	if err != nil {
+		panic(err)
 	}
+
+	bytes, err := json.MarshalIndent(jobs, "", " ")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(string(bytes))
 }
