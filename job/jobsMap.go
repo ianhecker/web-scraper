@@ -31,6 +31,16 @@ func (m JobsMap) AddJobs(jobs ...Job) []Job {
 	return added
 }
 
+func (m JobsMap) ToJobs() Jobs {
+	jobs := make([]Job, len(m))
+	i := 0
+	for _, job := range m {
+		jobs[i] = job
+		i++
+	}
+	return Jobs(jobs)
+}
+
 func MakeJobsFromRawJobs(rawJobs []Raw) ([]Job, error) {
 	var jobs = make([]Job, len(rawJobs))
 	for i, rawJob := range rawJobs {
