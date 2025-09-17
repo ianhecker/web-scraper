@@ -19,16 +19,18 @@ type Job struct {
 	URL      url.URL
 }
 
-func MakeJob(title, company, salary, dateStr, location string, isRemote bool, urlStr string) (Job, error) {
+func MakeJob(title, company, salary, dateStr, location string, isRemote bool, href string) (Job, error) {
 	date, err := time.Parse("02-01-2006", dateStr)
 	if err != nil {
 		return Job{}, fmt.Errorf("error parsing date: %w", err)
 	}
 
-	URL, err := url.Parse(urlStr)
+	base, _ := url.Parse("https://gojobs.run")
+	URL, err := url.Parse(href)
 	if err != nil {
 		return Job{}, fmt.Errorf("error parseing URL: %w", err)
 	}
+	fullURL := base.ResolveReference(URL)
 
 	ID := MakeID(title, company, date, *URL)
 
@@ -40,7 +42,7 @@ func MakeJob(title, company, salary, dateStr, location string, isRemote bool, ur
 		Date:     date,
 		Location: location,
 		IsRemote: isRemote,
-		URL:      *URL,
+		URL:      *fullURL,
 	}
 	return job, nil
 }
