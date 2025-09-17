@@ -11,33 +11,29 @@ func (jobs Jobs) Swap(i, j int) {
 }
 
 func (jobs Jobs) Less(i, j int) bool {
-	date1 := jobs[i].Date
-	date2 := jobs[j].Date
+	d1, d2 := jobs[i].Date, jobs[j].Date
 
-	y1, y2 := date1.Year(), date2.Year()
-	if y1 == y2 {
-
-		m1, m2 := date1.Month(), date2.Month()
-		if m1 == m2 {
-
-			d1, d2 := date1.Day(), date2.Day()
-			if d1 == d2 {
-
-				c1, c2 := jobs[i].Company, jobs[j].Company
-				if c1 == c2 {
-
-					url1, url2 := jobs[i].URL.String(), jobs[j].URL.String()
-					if url1 == url2 {
-
-						return jobs[i].ID < jobs[j].ID
-					}
-					return url1 < url2
-				}
-				return c1 < c2
-			}
-			return d1 < d2
-		}
-		return m1 < m2
+	y1, y2 := d1.Year(), d2.Year()
+	if y1 != y2 {
+		return y1 > y2
 	}
-	return y1 < y2
+
+	m1, m2 := d1.Month(), d2.Month()
+	if m1 != m2 {
+		return m1 > m2
+	}
+
+	day1, day2 := d1.Day(), d2.Day()
+	if day1 != day2 {
+		return day1 > day2
+	}
+
+	if jobs[i].Company != jobs[j].Company {
+		return jobs[i].Company < jobs[j].Company
+	}
+
+	if jobs[i].URL.String() != jobs[j].URL.String() {
+		return jobs[i].URL.String() < jobs[j].URL.String()
+	}
+	return jobs[i].ID < jobs[j].ID
 }
