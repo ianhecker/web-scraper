@@ -11,7 +11,7 @@ import (
 )
 
 const FILENAME = "jobs.csv"
-const URL = "https://gojobs.run"
+const URL = "https://gojobs.run/search?location=&sort-order="
 
 func main() {
 	existingJobs, err := csv.ReadFile(FILENAME)
@@ -19,24 +19,29 @@ func main() {
 		panic(err)
 	}
 
-	body, _, err := scrape.Get(URL)
-	if err != nil {
-		panic(err)
+	var fetchedJobs []job.Job
+	for pageNumber := 1; pageNumber <= 5; pageNumber++ {
+
+		body, _, err := scrape.Get(URL, pageNumber)
+		if err != nil {
+			panic(err)
+		}
+
+		reader := bytes.NewReader(body)
+		rawJobs, err := scrape.FindRawJobs(reader)
+		if err != nil {
+			panic(err)
+		}
+
+		jobs, err := job.MakeJobsFromRawJobs(rawJobs)
+		if err != nil {
+			panic(err)
+		}
+
+		fetchedJobs = append(fetchedJobs, jobs...)
 	}
 
-	reader := bytes.NewReader(body)
-	rawJobs, err := scrape.FindRawJobs(reader)
-	if err != nil {
-		panic(err)
-	}
-
-	newJobs, err := job.MakeJobsFromRawJobs(rawJobs)
-	if err != nil {
-		panic(err)
-	}
-
-	added := existingJobs.AddJobs(newJobs...)
-
+	added := existingJobs.AddJobs(fetchedJobs...)
 	if len(added) > 0 {
 		fmt.Printf("added jobs: %d\n", len(added))
 
