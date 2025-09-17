@@ -4,10 +4,19 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 )
 
-func Get(url string) ([]byte, int, error) {
-	resp, err := http.Get(url)
+func Get(urlStr string, pageNumber int) ([]byte, int, error) {
+	URL, err := url.Parse(urlStr)
+	if err != nil {
+		return nil, 0, fmt.Errorf("error parsing url: %w", err)
+	}
+	q := URL.Query()
+	q.Set("pageno", fmt.Sprintf("%d", pageNumber))
+	URL.RawQuery = q.Encode()
+
+	resp, err := http.Get(URL.String())
 	if err != nil {
 		return nil, 0, fmt.Errorf("error getting: %w", err)
 	}
