@@ -44,7 +44,7 @@ func WriteFile(path string, jobs []job.Job) error {
 	return w.Error()
 }
 
-func ReadFile(path string) ([]job.Job, error) {
+func ReadFile(path string) (job.JobsMap, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("error opening file: %w", err)
@@ -62,7 +62,7 @@ func ReadFile(path string) ([]job.Job, error) {
 		return nil, fmt.Errorf("error with headers: %w", err)
 	}
 
-	var jobs []job.Job
+	jobs := job.MakeJobs()
 	for {
 		record, err := r.Read()
 		if err == io.EOF {
@@ -77,7 +77,10 @@ func ReadFile(path string) ([]job.Job, error) {
 		if err != nil {
 			return nil, err
 		}
-		jobs = append(jobs, job)
+		added := jobs.Add(job)
+		if !added {
+			return nil, fmt.Errorf("error adding duplicate ID: %s", job.ID)
+		}
 	}
 	return jobs, nil
 }
