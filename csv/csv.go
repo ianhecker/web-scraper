@@ -20,7 +20,7 @@ var CSV_HEADER = []string{
 	"url",
 }
 
-func WriteFile(path string, jobs []job.Job) error {
+func WriteFile(path string, jobs job.Jobs) error {
 	file, err := os.Create(path)
 	if err != nil {
 		return fmt.Errorf("error crearing file: %w", err)

@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"sort"
 
 	"github.com/ianhecker/web-scraper/csv"
 	"github.com/ianhecker/web-scraper/job"
@@ -34,24 +35,21 @@ func main() {
 		panic(err)
 	}
 
-	m := make(map[string]job.Job, len(existingJobs))
-	for _, job := range existingJobs {
-		m[job.ID] = job
-	}
+	added := existingJobs.AddJobs(newJobs...)
 
-	addedJobs := []job.Job{}
-	for _, job := range newJobs {
-		_, exists := m[job.ID]
-		if !exists {
-			existingJobs = append(existingJobs, job)
-			addedJobs = append(addedJobs, job)
+	if len(added) > 0 {
+		fmt.Printf("added jobs: %d\n", len(added))
+
+		for _, job := range added {
+			fmt.Printf("%s @ %s\n", job.Title, job.Company)
 		}
 	}
 
-	if len(addedJobs) > 0 {
-		fmt.Printf("added jobs: %d\n", len(addedJobs))
-		for _, job := range addedJobs {
-			fmt.Printf("Title: %s\nCompany: %s\n", job.Title, job.Company)
-		}
+	jobs := existingJobs.ToJobs()
+	sort.Sort(jobs)
+
+	err = csv.WriteFile(FILENAME, jobs)
+	if err != nil {
+		panic(err)
 	}
 }
