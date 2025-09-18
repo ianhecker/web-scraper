@@ -1,10 +1,8 @@
 package job
 
-import "fmt"
-
 type JobsMap map[ID]Job
 
-func MakeJobs(jobs ...Job) JobsMap {
+func MakeJobsMap(jobs ...Job) JobsMap {
 	m := make(map[ID]Job, len(jobs))
 	for _, job := range jobs {
 		m[job.ID] = job
@@ -21,7 +19,7 @@ func (m JobsMap) Add(job Job) bool {
 	return false
 }
 
-func (m JobsMap) AddJobs(jobs ...Job) Jobs {
+func (m JobsMap) AddNewJobs(jobs ...Job) Jobs {
 	added := Jobs{}
 	for _, job := range jobs {
 		if m.Add(job) {
@@ -39,24 +37,4 @@ func (m JobsMap) ToJobs() Jobs {
 		i++
 	}
 	return Jobs(jobs)
-}
-
-func MakeJobsFromRawJobs(rawJobs []Raw) ([]Job, error) {
-	var jobs = make([]Job, len(rawJobs))
-	for i, rawJob := range rawJobs {
-		job, err := MakeJob(
-			rawJob.Title,
-			rawJob.Company,
-			rawJob.Salary,
-			rawJob.Date,
-			rawJob.Location,
-			rawJob.IsRemote,
-			rawJob.URL,
-		)
-		if err != nil {
-			return nil, fmt.Errorf("error creating job: %w", err)
-		}
-		jobs[i] = job
-	}
-	return jobs, nil
 }

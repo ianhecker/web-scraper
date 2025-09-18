@@ -2,6 +2,10 @@ package job
 
 type Jobs []Job
 
+func MakeJobs(jobs []Job) Jobs {
+	return Jobs(jobs)
+}
+
 func (jobs Jobs) Len() int {
 	return len(jobs)
 }

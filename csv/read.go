@@ -34,7 +34,7 @@ func ReadFile(file *os.File) (job.JobsMap, error) {
 		return nil, fmt.Errorf("error with headers: %w", err)
 	}
 
-	jobs := job.MakeJobs()
+	jobs := job.MakeJobsMap()
 	for {
 		record, err := r.Read()
 		if err == io.EOF {

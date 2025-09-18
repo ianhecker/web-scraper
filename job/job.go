@@ -123,3 +123,23 @@ func (j Job) MarshalJSON() ([]byte, error) {
 	}
 	return bytes, nil
 }
+
+func MakeJobsFromRawJobs(rawJobs []Raw) ([]Job, error) {
+	var jobs = make(Jobs, len(rawJobs))
+	for i, rawJob := range rawJobs {
+		job, err := MakeJob(
+			rawJob.Title,
+			rawJob.Company,
+			rawJob.Salary,
+			rawJob.Date,
+			rawJob.Location,
+			rawJob.IsRemote,
+			rawJob.URL,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("error creating job: %w", err)
+		}
+		jobs[i] = job
+	}
+	return jobs, nil
+}
