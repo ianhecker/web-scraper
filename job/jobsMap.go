@@ -21,8 +21,8 @@ func (m JobsMap) Add(job Job) bool {
 	return false
 }
 
-func (m JobsMap) AddJobs(jobs ...Job) []Job {
-	added := []Job{}
+func (m JobsMap) AddJobs(jobs ...Job) Jobs {
+	added := Jobs{}
 	for _, job := range jobs {
 		if m.Add(job) {
 			added = append(added, job)
