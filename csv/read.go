@@ -14,13 +14,22 @@ func ReadFile(file *os.File) (job.JobsMap, error) {
 		return nil, fmt.Errorf("given nil file")
 	}
 
-	r := csv.NewReader(file)
-	headers, err := r.Read()
+	_, err := file.Seek(0, io.SeekStart)
 	if err != nil {
+		return nil, fmt.Errorf("error seeking to start: %w", err)
+	}
+
+	r := csv.NewReader(file)
+	gotHeaders, err := r.Read()
+	if err != nil {
+
+		if err == io.EOF {
+			return nil, fmt.Errorf("empty csv: missing headers")
+		}
 		return nil, fmt.Errorf("error reading file: %w", err)
 	}
 
-	err = equalStrings(headers, CSV_HEADER)
+	err = equalStrings(gotHeaders, CSV_HEADERS)
 	if err != nil {
 		return nil, fmt.Errorf("error with headers: %w", err)
 	}
@@ -31,18 +40,19 @@ func ReadFile(file *os.File) (job.JobsMap, error) {
 		if err == io.EOF {
 			break
 		}
+
 		if err != nil {
 			return nil, fmt.Errorf("error reading record: %w", err)
 		}
 
-		var job job.Job
-		err = job.UnmarshalCSV(record)
-		if err != nil {
+		var j job.Job
+		if err := j.UnmarshalCSV(record); err != nil {
 			return nil, err
 		}
-		added := jobs.Add(job)
+
+		added := jobs.Add(j)
 		if !added {
-			return nil, fmt.Errorf("error adding duplicate ID: %s", job.ID)
+			return nil, fmt.Errorf("error adding duplicate ID: %s", j.ID)
 		}
 	}
 	return jobs, nil
