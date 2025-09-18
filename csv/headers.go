@@ -1,6 +1,6 @@
 package csv
 
-var CSV_HEADER = []string{
+var CSV_HEADERS = []string{
 	"id",
 	"title",
 	"company",
