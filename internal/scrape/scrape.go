@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/ianhecker/web-scraper/job"
+	"github.com/ianhecker/web-scraper/internal/job"
 )
 
 func ScrapePages(url string, pages int) (job.Jobs, error) {

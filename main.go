@@ -5,8 +5,8 @@ import (
 	"log"
 	"sort"
 
-	"github.com/ianhecker/web-scraper/csv"
-	"github.com/ianhecker/web-scraper/scrape"
+	"github.com/ianhecker/web-scraper/internal/csv"
+	"github.com/ianhecker/web-scraper/internal/scrape"
 )
 
 const JOBS_FILENAME = "jobs.csv"

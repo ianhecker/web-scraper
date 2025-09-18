@@ -6,7 +6,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/ianhecker/web-scraper/job"
+	"github.com/ianhecker/web-scraper/internal/job"
 )
 
 func WriteFile(file *os.File, jobs job.Jobs) error {

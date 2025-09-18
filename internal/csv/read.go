@@ -6,7 +6,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/ianhecker/web-scraper/job"
+	"github.com/ianhecker/web-scraper/internal/job"
 )
 
 func ReadFile(file *os.File) (job.JobsMap, error) {

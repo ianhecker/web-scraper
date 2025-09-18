@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/ianhecker/web-scraper/job"
+	"github.com/ianhecker/web-scraper/internal/job"
 )
 
 func FindRawJobs(reader io.Reader) ([]job.Raw, error) {
