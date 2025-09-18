@@ -1,13 +1,11 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"log"
 	"sort"
 
 	"github.com/ianhecker/web-scraper/csv"
-	"github.com/ianhecker/web-scraper/job"
 	"github.com/ianhecker/web-scraper/scrape"
 )
 
@@ -27,23 +25,11 @@ func main() {
 	jobs, err := csv.ReadFile(jobsFile)
 	checkErr(err)
 
-	var fetchedJobs []job.Job
-	for pageNumber := 1; pageNumber <= 5; pageNumber++ {
+	pageNumber := 5
+	fetchedJobs, err := scrape.ScrapePages(URL, pageNumber)
+	checkErr(err)
 
-		body, _, err := scrape.Get(URL, pageNumber)
-		checkErr(err)
-
-		reader := bytes.NewReader(body)
-		rawJobs, err := scrape.FindRawJobs(reader)
-		checkErr(err)
-
-		jobs, err := job.MakeJobsFromRawJobs(rawJobs)
-		checkErr(err)
-
-		fetchedJobs = append(fetchedJobs, jobs...)
-	}
-
-	newJobs := jobs.AddJobs(fetchedJobs...)
+	newJobs := jobs.AddNewJobs(fetchedJobs...)
 	if len(newJobs) > 0 {
 		fmt.Printf("added jobs: %d\n", len(newJobs))
 	}
