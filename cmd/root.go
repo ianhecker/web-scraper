@@ -20,6 +20,7 @@ func Execute() {
 }
 
 func init() {
+	rootCmd.AddCommand(addCmd)
 	rootCmd.AddCommand(scrapeCmd)
 }
 
