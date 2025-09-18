@@ -34,13 +34,13 @@ func main() {
 		fmt.Printf("added jobs: %d\n", len(newJobs))
 	}
 
+	sort.Sort(newJobs)
 	err = csv.WriteFile(newJobsFile, newJobs)
 	checkErr(err)
 
-	sortedJobs := jobs.ToJobs()
-	sort.Sort(sortedJobs)
-
-	err = csv.WriteFile(jobsFile, sortedJobs)
+	allJobs := jobs.ToJobs()
+	sort.Sort(allJobs)
+	err = csv.WriteFile(jobsFile, allJobs)
 	checkErr(err)
 }
 
